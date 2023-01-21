@@ -1,0 +1,288 @@
+---
+title: "Kraft og Power data"
+author: ''
+date: "`r paste(Sys.Date())`"
+output:
+  word_document: 
+    reference_docx: resources/aktiv-template.docx
+  html_document: default
+  pdf_document: 
+editor_options:
+  chunk_output_type: console
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+
+
+## Load packages to use:
+
+library(tidyverse)
+library(cowplot)
+library(png)
+library(float)
+
+```
+
+
+```{r fill, echo=FALSE, warning=FALSE, message=FALSE}
+
+# Velg ønsket "id" fra excelskjemaet og sett det inn mellom anførselstegnene "".
+
+id_tag <- "P_1"
+
+# Skriv inn skadet bein, høyre eller venstre, mellom anførselstegnene "".
+
+fot_skadet <- "høyre"
+
+########### deretter trykk på "Knit" øverst på siden ###################
+
+```
+
+
+```{r tidy, echo=FALSE, warning=FALSE, message=FALSE}
+
+# keiser picture
+knitr::include_graphics("./resources/keiser.jpg")
+
+######################################################################################
+########################## Alt under skal ikke røres ################################
+######################################################################################
+
+# les inn data fra excel
+
+df <- readxl::read_excel("./data/template_power_force.xlsx")
+
+# tidy ønsket data
+
+df_abs <- df %>% 
+  filter(id == id_tag) %>% 
+  mutate(status = if_else(fot == fot_skadet, "skadet", "friskt")) %>%
+  select(-fot) %>% 
+  mutate(status = factor(status, levels = c("skadet", "friskt"), labels = c("Skadet", "Friskt")))
+
+
+df_index <- df_abs %>%
+  pivot_longer(cols = c(power, force),
+               names_to = "variable",
+               values_to= "values") %>% 
+  pivot_wider(names_from = status,
+              values_from = values) %>% 
+mutate(LSI = (Skadet / Friskt) * 100)
+
+
+df_relative <- df_abs %>%
+ dplyr::select(-c(date)) %>% 
+  pivot_longer(cols = c(power, force),
+               names_to = "variable",
+               values_to= "values") %>% 
+  pivot_wider(names_from = time,
+              values_from = values,
+              names_prefix = "") %>% 
+  rowwise() %>% 
+  mutate(baseline = 0,
+          f2 = (T_2 / T_1 -1)*100,
+         f3 = (T_3 / T_1 -1)*100) %>% 
+  pivot_longer(cols = c(baseline, f2, f3),
+               values_to = "value",
+               names_to = "time")
+  
+
+```
+\newpage
+
+# Kraft data (måles i Newton)
+
+```{r script, echo=FALSE, warning=FALSE, fig.height=8, fig.width=7.0, fig.align = "center"}
+
+## FORCE DATA
+
+# Single plot absolute data
+
+abs_force <- df_abs %>% 
+  mutate(time = factor(time, levels = c("T_1", "T_2", "T_3"), 
+                     labels = c("Baseline", "Follow up 2", "Follow up 3"))) %>%
+  
+ ggplot(., aes(time, force, fill = status)) + geom_col(position = "dodge", width = 0.6) +
+   
+  
+  geom_text(aes(label = force), position = position_dodge(0.5), vjust = -0.2, colour="black") +
+
+  
+  labs(x = "Bein", y = "Force (N)", fill = "Bein",
+       title = "Kraft absolutt data") +
+  
+  scale_fill_manual(values = c("pink", "purple")) +
+  
+  theme_classic() +
+  theme(legend.position = "bottom",
+        axis.title.x = element_blank(),
+        plot.background = element_rect(fill = "darkgrey"),
+        strip.background = element_blank(),
+         plot.margin = margin(0.3, 0.2, 0.5, 0.2, "cm"),
+        strip.text = element_text(size=15))
+ 
+ 
+ # Limb symetry index plot FORCE
+ 
+ index_force <- df_index %>% 
+   filter(variable == "force") %>% 
+   mutate(time = factor(time, levels = c("T_1", "T_2", "T_3"), 
+                        labels = c("Baseline", "Follow up 2", "Follow up 3"))) %>%
+ 
+ ggplot(., aes(time, LSI, fill = time)) + geom_col(position = "dodge", width = 0.6) +
+   
+   
+   geom_text(aes(label = round(LSI)), position = position_dodge(0.5), vjust = -0.2, colour="black") +
+   
+   
+   labs(x = "Bein", y = "Limb Symmetry Index", fill = "Tid",
+        title = "Index mellom friskt og skadet bein") +
+   
+   scale_fill_manual(values = c("lightgreen", "green", "darkgreen")) +
+   
+   theme_classic() +
+   theme(legend.position = "none",
+         axis.title.x = element_blank(),
+         plot.background = element_rect(fill = "darkgrey"),
+         strip.background = element_blank(),
+         plot.margin = margin(0.3, 0.2, 0.5, 0.2, "cm"),
+         strip.text = element_text(size=15))
+
+ 
+ # relative difference from baseline
+ 
+ rel_force <-  df_relative %>% 
+   filter(variable == "force") %>% 
+    mutate(time = factor(time, levels = c("baseline", "f2", "f3"), 
+                         labels = c("Baseline", "Follow up 2", "Follow up 3"))) %>% 
+    
+   
+   
+   ggplot(., aes(time, value, group = status, fill = status)) + 
+   
+    geom_line(aes(colour =status), linetype = "dotdash", size = 1, show.legend = FALSE) + 
+    
+    geom_point(shape = 21, size = 3) +
+   
+   
+   geom_text(aes(label = round(value)), position = position_dodge(0.5), vjust = -0.2, colour="black", size = 5) +
+   
+   
+   labs(x = "Follow up", y = "Relative endring fra baseline (%)", fill = "Bein",
+        title = "Styrke endring på absolutt data") +
+   
+   scale_fill_manual(values = c("pink", "purple")) +
+  scale_colour_manual(values=c("pink", "purple")) +
+   
+    theme_classic() +
+   theme(legend.position = "bottom",
+         axis.title.x = element_blank(),
+         plot.background = element_rect(fill = "darkgrey"),
+         strip.background = element_blank(),
+         plot.margin = margin(0.3, 0.2, 0.5, 0.2, "cm"),
+         strip.text = element_text(size=15))
+  
+  
+  plot_grid(abs_force, rel_force, index_force,  ncol=2 )
+  
+  
+```
+\newpage
+
+
+# Power data ("Effekt" måles i Watt)
+
+```{r script_power, echo=FALSE, warning=FALSE, fig.height=8, fig.width=7.0, fig.align = "center"}
+## POWER DATA
+
+# Single plot absolute data
+
+abs_power <- df_abs %>% 
+  mutate(time = factor(time, levels = c("T_1", "T_2", "T_3"), 
+                     labels = c("Baseline", "Follow up 2", "Follow up 3"))) %>%
+  
+ ggplot(., aes(time, power, fill = status)) + geom_col(position = "dodge", width = 0.6) +
+   
+  
+  geom_text(aes(label = power), position = position_dodge(0.5), vjust = -0.2, colour="black") +
+
+  
+  labs(x = "Bein", y = "Power (W)", fill = "Bein",
+       title = "Power absolutt data") +
+  
+  scale_fill_manual(values = c("pink", "purple")) +
+  
+  theme_classic() +
+  theme(legend.position = "bottom",
+        axis.title.x = element_blank(),
+        plot.background = element_rect(fill = "darkgrey"),
+        strip.background = element_blank(),
+         plot.margin = margin(0.3, 0.2, 0.5, 0.2, "cm"),
+        strip.text = element_text(size=15))
+ 
+ 
+ # Limb symetry index plot FORCE
+ 
+ index_power <- df_index %>% 
+   filter(variable == "power") %>% 
+   mutate(time = factor(time, levels = c("T_1", "T_2", "T_3"), 
+                        labels = c("Baseline", "Follow up 2", "Follow up 3"))) %>%
+ 
+ ggplot(., aes(time, LSI, fill = time)) + geom_col(position = "dodge", width = 0.6) +
+   
+   
+   geom_text(aes(label = round(LSI)), position = position_dodge(0.5), vjust = -0.2, colour="black") +
+   
+   
+   labs(x = "Bein", y = "Limb Symmetry Index", fill = "Tid",
+        title = "Index mellom friskt og skadet bein") +
+   
+   scale_fill_manual(values = c("lightgreen", "green", "darkgreen")) +
+   
+   theme_classic() +
+   theme(legend.position = "none",
+         axis.title.x = element_blank(),
+         plot.background = element_rect(fill = "darkgrey"),
+         strip.background = element_blank(),
+         plot.margin = margin(0.3, 0.2, 0.5, 0.2, "cm"),
+         strip.text = element_text(size=15))
+
+ 
+ # relative difference from baseline
+ 
+ rel_power <-  df_relative %>% 
+   filter(variable == "power") %>% 
+    mutate(time = factor(time, levels = c("baseline", "f2", "f3"), 
+                         labels = c("Baseline", "Follow up 2", "Follow up 3"))) %>% 
+    
+   
+   
+   ggplot(., aes(time, value, group = status, fill = status)) + 
+   
+    geom_line(aes(colour =status), linetype = "dotdash", size = 1, show.legend = FALSE) + 
+    
+    geom_point(shape = 21, size = 3) +
+   
+   
+   geom_text(aes(label = round(value)), position = position_dodge(0.5), vjust = -0.2, colour="black", size = 5) +
+   
+   
+   labs(x = "Follow up", y = "Relative endring fra baseline (%)", fill = "Bein",
+        title = "Styrke endring på absolutt data") +
+   
+   scale_fill_manual(values = c("pink", "purple")) +
+  scale_colour_manual(values=c("pink", "purple")) +
+   
+    theme_classic() +
+   theme(legend.position = "bottom",
+         axis.title.x = element_blank(),
+         plot.background = element_rect(fill = "darkgrey"),
+         strip.background = element_blank(),
+         plot.margin = margin(0.3, 0.2, 0.5, 0.2, "cm"),
+         strip.text = element_text(size=15))
+  
+  
+  plot_grid(abs_power, rel_power, index_power,  ncol=2)
+```
+
