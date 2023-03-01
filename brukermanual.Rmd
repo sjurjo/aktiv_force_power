@@ -1,0 +1,21 @@
+---
+title: "Brukermanual"
+author: "Sjur J. Øfsteng"
+date: "2023-03-01"
+output: word_document
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+```
+
+# Under fanen "output.RMD" fyll inn følgende [under "r fyll-inn-id" som starter på linje 28]:
+
+1. id_tag fra excelskjemaet (linje 32)
+
+2. fyll inn skadet fot enten; "høyre" eller "venstre" (linje 36)
+
+3. Trykk deretter på "Knit" øverst i vinduet. 
+
+## Deretter kommer rapporten automatisk til en word fil.
+## Lagre filen i ønsket mappe tilhørende deg.
