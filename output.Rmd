@@ -14,7 +14,6 @@ editor_options:
 ```{r setup, include=FALSE}
 knitr::opts_chunk$set(echo = TRUE)
 
-
 ## Load packages to use:
 
 library(tidyverse)
@@ -25,7 +24,7 @@ library(float)
 ```
 
 
-```{r fill, echo=FALSE, warning=FALSE, message=FALSE}
+```{r fill data, echo=FALSE, warning=FALSE, message=FALSE}
 
 # Velg ønsket "id" fra excelskjemaet og sett det inn mellom anførselstegnene "".
 
@@ -49,7 +48,7 @@ knitr::include_graphics("./resources/keiser.jpg")
 ########################## Alt under skal ikke røres ################################
 ######################################################################################
 
-# les inn data fra excel
+# les inn data fra excel skjema
 
 df <- readxl::read_excel("./data/template_power_force.xlsx")
 
@@ -194,6 +193,7 @@ abs_force <- df_abs %>%
 # Power data ("Effekt" måles i Watt)
 
 ```{r script_power, echo=FALSE, warning=FALSE, fig.height=8, fig.width=7.0, fig.align = "center"}
+
 ## POWER DATA
 
 # Single plot absolute data
