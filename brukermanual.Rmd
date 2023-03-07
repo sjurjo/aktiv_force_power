@@ -9,9 +9,17 @@ output: word_document
 knitr::opts_chunk$set(echo = TRUE)
 ```
 
+# Excel skjema
+
+1. Fyll inn informasjon i excel-skjemaet fra Power testen.
+
+2. Vær nøye med å fyll inn riktig informasjon per rad i excelskjemaet. Høyre og venstre fot har hver sin rad per tidspunkt ("time")
+
+############################################################################################
+
 # Under fanen "output.RMD" fyll inn følgende [under "r fyll-inn-id" som starter på linje 28]:
 
-1. id_tag fra excelskjemaet (linje 32)
+1. Under "id_tag" i R sett inn valgt "id" fra excelskjemaet (linje 32)
 
 2. fyll inn skadet fot enten; "høyre" eller "venstre" (linje 36)
 

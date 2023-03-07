@@ -24,11 +24,8 @@ library(float)
 ```
 
 
-<<<<<<< HEAD
-```{r fill data, echo=FALSE, warning=FALSE, message=FALSE}
-=======
+
 ```{r fyll-inn-id, echo=FALSE, warning=FALSE, message=FALSE}
->>>>>>> dfa95379870fe55121d6a2132c3c34eef9edfb55
 
 # Velg ønsket "id" fra excelskjemaet og sett det inn mellom anførselstegnene "".
 
