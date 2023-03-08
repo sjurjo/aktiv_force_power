@@ -14,7 +14,6 @@ editor_options:
 ```{r setup, include=FALSE}
 knitr::opts_chunk$set(echo = TRUE)
 
-
 ## Load packages to use:
 
 library(tidyverse)
@@ -23,6 +22,7 @@ library(png)
 library(float)
 
 ```
+
 
 
 ```{r fyll-inn-id, echo=FALSE, warning=FALSE, message=FALSE}
@@ -49,7 +49,7 @@ knitr::include_graphics("./resources/keiser.jpg")
 ########################## Alt under skal ikke røres ################################
 ######################################################################################
 
-# les inn data fra excel
+# les inn data fra excel skjema
 
 df <- readxl::read_excel("./data/template_power_force.xlsx")
 
@@ -194,6 +194,7 @@ abs_force <- df_abs %>%
 # Power data ("Effekt" måles i Watt)
 
 ```{r script_power, echo=FALSE, warning=FALSE, fig.height=8, fig.width=7.0, fig.align = "center"}
+
 ## POWER DATA
 
 # Single plot absolute data
@@ -222,7 +223,7 @@ abs_power <- df_abs %>%
         strip.text = element_text(size=15))
  
  
- # Limb symetry index plot FORCE
+ # Limb symetry index plot POWER
  
  index_power <- df_index %>% 
    filter(variable == "power") %>% 
