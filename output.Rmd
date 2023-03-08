@@ -223,7 +223,7 @@ abs_power <- df_abs %>%
         strip.text = element_text(size=15))
  
  
- # Limb symetry index plot FORCE
+ # Limb symetry index plot POWER
  
  index_power <- df_index %>% 
    filter(variable == "power") %>% 
